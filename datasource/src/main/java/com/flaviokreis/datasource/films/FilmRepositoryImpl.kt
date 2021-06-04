@@ -14,7 +14,7 @@ internal class FilmRepositoryImpl(
     private val remoteDatasource: FilmRemoteDatasource
 ) : FilmRepository {
 
-    override suspend fun getFilms(): Flow<List<Film>> =
+    override fun getFilms(): Flow<List<Film>> =
         networkBoundResource(
             fetchFromLocal = {
                 localDatasource.getFilms().distinctUntilChanged()
