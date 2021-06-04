@@ -1,17 +1,33 @@
 package com.flaviokreis.datasource.films
 
+import com.flaviokreis.datasource.commons.networkBoundResource
+import com.flaviokreis.datasource.films.local.FilmLocalDatasource
 import com.flaviokreis.datasource.films.model.Film
 import com.flaviokreis.datasource.films.remote.FilmRemoteDatasource
-import com.flaviokreis.datasource.films.remote.FilmRemoteMapper
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 
 internal class FilmRepositoryImpl(
-    private val remoteDatasource: FilmRemoteDatasource,
-    private val remoteMapper: FilmRemoteMapper
+    private val localDatasource: FilmLocalDatasource,
+    private val remoteDatasource: FilmRemoteDatasource
 ) : FilmRepository {
+
     override suspend fun getFilms(): Flow<List<Film>> =
-        remoteDatasource.getFilms().map {
-            remoteMapper.toModelList(it)
-        }
+        networkBoundResource(
+            fetchFromLocal = {
+                localDatasource.getFilms().distinctUntilChanged()
+            },
+            fetchFromRemote = {
+                remoteDatasource.getFilms()
+            },
+            shouldFetchFromRemote = { content ->
+                (content == null || content.isEmpty())
+            },
+            saveRemoteData = {
+                localDatasource.addFilms(it)
+            }
+        ).flowOn(Dispatchers.IO)
+
 }

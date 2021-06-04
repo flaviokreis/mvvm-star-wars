@@ -1,63 +1,77 @@
 package com.flaviokreis.datasource.films
 
-import com.flaviokreis.datasource.films.model.Film
+import com.flaviokreis.datasource.films.local.FilmLocalDatasource
 import com.flaviokreis.datasource.films.remote.FilmRemoteDatasource
-import com.flaviokreis.datasource.films.remote.FilmRemoteMapper
-import io.mockk.coEvery
-import io.mockk.coVerify
-import io.mockk.mockk
+import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
 import java.net.SocketTimeoutException
 
 @ExperimentalCoroutinesApi
 class FilmRepositoryImplTest {
-    private val datasource: FilmRemoteDatasource = mockk()
-    private val remoteMapper: FilmRemoteMapper = mockk()
+    private val localDatasource: FilmLocalDatasource = mockk()
+    private val remoteDatasource: FilmRemoteDatasource = mockk()
 
     @Test
-    fun `GIVEN film remote datasource WHEN remote datasource returns films THEN result is converted to model`() = runBlockingTest {
-        // GIVEN
-        val repository = FilmRepositoryImpl(datasource, remoteMapper)
+    fun `GIVEN film local datasource WHEN local datasource returns films THEN returns result from database`() =
+        runBlocking {
+            // GIVEN
+            val repository = FilmRepositoryImpl(localDatasource, remoteDatasource)
 
-        coEvery { datasource.getFilms() } returns flowOf(listOf(mockk()))
-        coEvery { remoteMapper.toModelList(any()) } returns listOf(
-            Film(
-                title = "A New Hope",
-                episodeId = 4,
-                openingCrawl = "It is a period of civil war.",
-                director = "George Lucas",
-                producer = "Gary Kurtz, Rick McCallum",
-                releaseDate = "1977-05-25"
-            )
-        )
+            coEvery { localDatasource.getFilms() } returns flowOf(listOf(mockk()))
 
-        // THEN
-        val result = repository.getFilms().first()
+            // THEN
+            val result = repository.getFilms().first()
 
-        Assert.assertEquals(1, result.size)
-        Assert.assertEquals("A New Hope", result.first().title)
-        coVerify {
-            datasource.getFilms()
-            remoteMapper.toModelList(any())
+            Assert.assertEquals(1, result.size)
+            coVerify {
+                localDatasource.getFilms()
+            }
         }
-    }
+
+    @Test
+    fun `GIVEN film remote datasource WHEN local datasource has empty list THEN returns content from remote`() =
+        runBlocking {
+            // GIVEN
+            val repository = FilmRepositoryImpl(localDatasource, remoteDatasource)
+
+            coEvery { remoteDatasource.getFilms() } returns flowOf(listOf(mockk()))
+            coEvery { localDatasource.addFilms(any()) } just Runs
+            coEvery { localDatasource.getFilms() } returnsMany listOf(
+                flowOf(emptyList()),
+                flowOf(listOf(mockk()))
+            )
+
+            // THEN
+            val result = repository.getFilms().drop(1).first()
+
+            Assert.assertEquals(1, result.size)
+            coVerifySequence {
+                localDatasource.getFilms()
+                remoteDatasource.getFilms()
+                localDatasource.addFilms(any())
+                localDatasource.getFilms()
+            }
+        }
 
     @Test(expected = SocketTimeoutException::class)
-    fun `GIVEN film datasource WHEN datasource returns throws THEN flow emit throws`() = runBlockingTest {
-        // GIVEN
-        val repository = FilmRepositoryImpl(datasource, remoteMapper)
+    fun `GIVEN film datasource WHEN datasource returns throws THEN flow emit throws`() =
+        runBlocking {
+            // GIVEN
+            val repository = FilmRepositoryImpl(localDatasource, remoteDatasource)
 
-        coEvery { datasource.getFilms() } throws SocketTimeoutException("No connectivity")
+            coEvery { localDatasource.getFilms() } returns flowOf(emptyList())
+            coEvery { remoteDatasource.getFilms() } throws SocketTimeoutException("No connectivity")
 
-        // WHEN
-        val result = datasource.getFilms().first()
+            // WHEN
+            val result = repository.getFilms().drop(1).first()
 
-        // THEN
-        Assert.assertNull(result)
-    }
+            // THEN
+            Assert.assertNull(result)
+        }
 }

@@ -8,7 +8,7 @@ import org.koin.core.component.get
 import org.koin.core.qualifier.named
 import retrofit2.Retrofit
 
-class NetworkDITest: BaseKoinTest() {
+class NetworkDITest : BaseKoinTest() {
 
     override fun getModules() = listOf(networkDI)
 

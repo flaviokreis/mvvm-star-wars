@@ -6,6 +6,4 @@ internal interface RemoteMapper<MODEL, DTO> {
     fun toModelList(data: List<DTO>): List<MODEL> {
         return data.map { toModel(it) }
     }
-
-    fun toDto(model: MODEL): DTO
 }

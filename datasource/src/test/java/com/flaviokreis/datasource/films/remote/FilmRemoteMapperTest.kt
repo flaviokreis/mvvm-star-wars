@@ -1,6 +1,5 @@
 package com.flaviokreis.datasource.films.remote
 
-import com.flaviokreis.datasource.films.model.Film
 import com.flaviokreis.datasource.films.remote.model.FilmDTO
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -18,7 +17,8 @@ class FilmRemoteMapperTest {
             openingCrawl = "It is a period of civil war.",
             director = "George Lucas",
             producer = "Gary Kurtz, Rick McCallum",
-            releaseDate = "1977-05-25"
+            releaseDate = "1977-05-25",
+            url = "http://swapi.dev/api/films/1/"
         )
 
         // WHEN
@@ -27,26 +27,6 @@ class FilmRemoteMapperTest {
         // THEN
         assertNotNull(result)
         assertEquals(dto.title, result.title)
-    }
-
-    @Test
-    fun `GIVEN film model object WHEN execute toDto method THEN returns film data transfer object`() {
-        // GIVEN
-        val film = Film(
-            title = "A New Hope",
-            episodeId = 4,
-            openingCrawl = "It is a period of civil war.",
-            director = "George Lucas",
-            producer = "Gary Kurtz, Rick McCallum",
-            releaseDate = "1977-05-25"
-        )
-
-        // WHEN
-        val result = mapper.toDto(film)
-
-        // THEN
-        assertNotNull(result)
-        assertEquals(film.title, result.title)
     }
 
     @Test
@@ -59,7 +39,8 @@ class FilmRemoteMapperTest {
                 openingCrawl = "It is a period of civil war.",
                 director = "George Lucas",
                 producer = "Gary Kurtz, Rick McCallum",
-                releaseDate = "1977-05-25"
+                releaseDate = "1977-05-25",
+                url = "http://swapi.dev/api/films/1/"
             )
         )
 

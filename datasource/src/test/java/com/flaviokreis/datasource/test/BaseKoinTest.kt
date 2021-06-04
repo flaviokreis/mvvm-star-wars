@@ -1,7 +1,9 @@
 package com.flaviokreis.datasource.test
 
+import io.mockk.mockk
 import org.junit.After
 import org.junit.Before
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -13,7 +15,10 @@ abstract class BaseKoinTest : KoinComponent {
 
     @Before
     fun setUp() {
-        startKoin { modules(getModules()) }
+        startKoin {
+            androidContext(mockk(relaxed = true))
+            modules(getModules())
+        }
     }
 
     @After

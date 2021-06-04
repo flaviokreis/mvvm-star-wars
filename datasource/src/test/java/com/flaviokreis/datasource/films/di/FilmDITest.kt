@@ -1,8 +1,11 @@
 package com.flaviokreis.datasource.films.di
 
+import com.flaviokreis.datasource.di.databaseDI
 import com.flaviokreis.datasource.di.networkDI
 import com.flaviokreis.datasource.films.FilmRepository
 import com.flaviokreis.datasource.films.FilmRepositoryImpl
+import com.flaviokreis.datasource.films.local.FilmLocalDatasource
+import com.flaviokreis.datasource.films.local.FilmLocalMapper
 import com.flaviokreis.datasource.films.remote.FilmRemoteDatasource
 import com.flaviokreis.datasource.films.remote.FilmRemoteDatasourceImpl
 import com.flaviokreis.datasource.films.remote.FilmRemoteMapper
@@ -16,6 +19,7 @@ import org.koin.core.component.get
 class FilmDITest : BaseKoinTest() {
     override fun getModules() = listOf(
         networkDI,
+        databaseDI,
         filmDI
     )
 
@@ -51,6 +55,29 @@ class FilmDITest : BaseKoinTest() {
         //THEN
         assertNotNull(value)
         assertTrue(value is FilmRemoteDatasourceImpl)
+    }
+
+    @Test
+    fun `GIVEN film dependency injection WHEN module is injected THEN the film local mapper is created`() {
+        // GIVEN
+
+        // WHEN
+        val value = get<FilmLocalMapper>()
+
+        //THEN
+        assertNotNull(value)
+    }
+
+    @Test
+    fun `GIVEN film dependency injection WHEN module is injected THEN the film local data source is created`() {
+        // GIVEN
+
+        // WHEN
+        val value = get<FilmLocalDatasource>()
+
+        //THEN
+        assertNotNull(value)
+        assertTrue(value is FilmLocalDatasource)
     }
 
     @Test
