@@ -11,6 +11,6 @@ import com.flaviokreis.datasource.films.local.model.FilmEntity
     ],
     version = 1
 )
-abstract class AppDatabase : RoomDatabase() {
+internal abstract class AppDatabase : RoomDatabase() {
     abstract fun filmDao(): FilmDao
 }

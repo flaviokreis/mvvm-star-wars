@@ -8,7 +8,7 @@ import com.flaviokreis.datasource.films.local.model.FilmEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface FilmDao {
+internal interface FilmDao {
     @Query("SELECT * FROM film ORDER BY id")
     fun getAll(): Flow<List<FilmEntity>>
 
