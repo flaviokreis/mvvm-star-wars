@@ -1,17 +1,15 @@
 package com.flaviokreis.mvvmstarwars
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.flaviokreis.datasource.films.model.Film
 import com.flaviokreis.mvvmstarwars.MainDestinations.MOVIE_ID
 import com.flaviokreis.mvvmstarwars.movies.details.MovieDetailScreen
 import com.flaviokreis.mvvmstarwars.movies.list.MoviesScreen
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import org.koin.androidx.compose.koinViewModel
 
 object MainDestinations {
@@ -22,7 +20,8 @@ object MainDestinations {
 
 @Composable
 fun StarWarsNavGraph(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    padding: PaddingValues
 ) {
     val actions = remember(navController) { MainActions(navController) }
 
