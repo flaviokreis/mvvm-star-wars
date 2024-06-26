@@ -11,6 +11,8 @@ import com.flaviokreis.mvvmstarwars.MainDestinations.MOVIE_ID
 import com.flaviokreis.mvvmstarwars.movies.details.MovieDetailScreen
 import com.flaviokreis.mvvmstarwars.movies.list.MoviesScreen
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import org.koin.androidx.compose.koinViewModel
 
 object MainDestinations {
     const val MOVIES_ROUTE = "movies"
@@ -20,8 +22,7 @@ object MainDestinations {
 
 @Composable
 fun StarWarsNavGraph(
-    navController: NavHostController = rememberNavController(),
-    moviesFlow: Flow<List<Film>>
+    navController: NavHostController = rememberNavController()
 ) {
     val actions = remember(navController) { MainActions(navController) }
 
@@ -31,14 +32,14 @@ fun StarWarsNavGraph(
     ) {
         composable(MainDestinations.MOVIES_ROUTE) {
             MoviesScreen(
-                moviesFlow = moviesFlow,
+                viewModel = koinViewModel(),
                 onItemClicked = actions.navigateToMovie
             )
         }
         composable("${MainDestinations.MOVIE_DETAIL}/{$MOVIE_ID}") { backStackEntry ->
             MovieDetailScreen(
                 id = backStackEntry.arguments?.getString(MOVIE_ID)?.toIntOrNull() ?: -1,
-                moviesFlow = moviesFlow
+                moviesFlow = flow {  }
             )
         }
     }

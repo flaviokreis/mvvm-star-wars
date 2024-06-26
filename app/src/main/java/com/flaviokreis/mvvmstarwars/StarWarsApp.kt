@@ -31,10 +31,7 @@ fun StarWarsApp(
                 )
             }
         ) {
-            StarWarsNavGraph(
-                navController = navController,
-                moviesFlow = repository.getFilms().flowOn(Dispatchers.Main)
-            )
+            StarWarsNavGraph(navController)
         }
     }
 }

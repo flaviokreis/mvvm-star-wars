@@ -24,9 +24,9 @@ fun MovieItem(movie: Film, onItemClicked: (Int) -> Unit) {
             .clickable(onClick = { onItemClicked(movie.id) })
             .padding(16f.dp)
     ) {
-        Text(text = "Episode ${movie.episodeId}", style = typography.overline, color = textColor)
+        Text(text = "Episode ${movie.episodeId}", style = typography.body2, color = textColor)
         Text(text = movie.title, style = typography.h5, color = textColor)
-        Text(text = movie.director, style = typography.body2, color = textColor)
+        Text(text = movie.director, style = typography.body1, color = textColor)
     }
 }
 
