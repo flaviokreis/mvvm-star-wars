@@ -38,8 +38,8 @@ fun StarWarsNavGraph(
         }
         composable("${MainDestinations.MOVIE_DETAIL}/{$MOVIE_ID}") { backStackEntry ->
             MovieDetailScreen(
-                id = backStackEntry.arguments?.getString(MOVIE_ID)?.toIntOrNull() ?: -1,
-                moviesFlow = flow {  }
+                viewModel = koinViewModel(),
+                selectedId = backStackEntry.arguments?.getString(MOVIE_ID)?.toIntOrNull() ?: -1
             )
         }
     }
