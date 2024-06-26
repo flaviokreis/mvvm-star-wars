@@ -1,27 +1,71 @@
 package com.flaviokreis.mvvmstarwars.movies.details
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.flaviokreis.datasource.films.model.Film
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import com.flaviokreis.mvvmstarwars.commons.Resource
 
 @Composable
-fun MovieDetailScreen(id: Int, moviesFlow: Flow<List<Film>>) {
+fun MovieDetailScreen(
+    viewModel: MovieDetailsViewModel,
+    selectedId: Int
+) {
 
-    val movie = moviesFlow
-        .collectAsState(initial = emptyList())
-        .value
-        .find { it.id == id } ?: return
+    val state = viewModel.state.value
+
+    viewModel.fetchMovie(selectedId)
+
+    val typography = MaterialTheme.typography
+    val textColor = Color(0xFFFFE81F)
+
+    when(state.result) {
+        is Resource.Error -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16f.dp)
+            ) {
+                Text(
+                    text = state.result.message ?: "Erro Desconhecido",
+                    style = typography.body2, color = textColor
+                )
+            }
+        }
+        is Resource.Loading -> {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+        is Resource.Success -> {
+            state.result.data?.let { result ->
+                MovieDetailScreen(result)
+            }
+        }
+        null -> Text(text = "Algo deu errado")
+    }
+}
+
+@Composable
+fun MovieDetailScreen(movie: Film) {
 
     val typography = MaterialTheme.typography
     val textColor = Color(0xFFFFE81F)
@@ -63,7 +107,7 @@ fun MovieDetailScreen(id: Int, moviesFlow: Flow<List<Film>>) {
 @Preview
 @Composable
 fun MovieDetailScreenPreview() {
-    MovieDetailScreen(1, flowOf(listOf(getFilmModel())))
+    MovieDetailScreen(getFilmModel())
 }
 
 private fun getFilmModel() = Film(
